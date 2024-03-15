@@ -314,32 +314,74 @@ public class GameManager : MonoBehaviour
         // so see if there is tiles to left above right and below
         // just try get a hexagon around first of all
         int[] coordinates = hex.GetCoord();
+
+
+        // change code to not use pitch length and instead check coordinates[0] count !!!!
+
         // so if tile is away from edges and away from top add them
-        if (coordinates[0] > 0 && coordinates[1] < pitchLength)
+        if (pitch[coordinates[0]].Count() < pitchLength)
         {
-            highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1] + 1]);
+            if (coordinates[0] > 0 && coordinates[1] < pitch[coordinates[0] - 1].Count())
+            {
+                highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1] + 1]);
+            }
+            if (coordinates[0] < pitchWidth - 1 && coordinates[1] < pitch[coordinates[0] + 1].Count())
+            {
+                highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1] + 1]);
+            }
         }
-        if (coordinates[0] < pitchWidth && coordinates[1] < pitchLength)
+        else
         {
-            highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1] + 1]);
+            if (coordinates[0] > 0 && coordinates[1] < pitch[coordinates[0]-1].Count())
+            {
+                highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1]]);
+            }
+            if (coordinates[0] < pitchWidth - 1 && coordinates[1] < pitch[coordinates[0]+1].Count())
+            {
+                highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1]]);
+            }
         }
         // so if tile away from edges and the bottom add them
-        if (coordinates[0] > 0 && coordinates[1] > 0)
+        if (pitch[coordinates[0]].Count() < pitchLength)
         {
-            highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1] - 1]);
+            if (coordinates[0] > 0 && coordinates[1] >= 0)
+            {
+                highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1]]);
+            }
+            if (coordinates[0] < pitchWidth - 1 && coordinates[1] >= 0)
+            {
+                highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1]]);
+            }
         }
-        if (coordinates[0] < pitchWidth && coordinates[1] > 0)
+        else
         {
-            highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1] - 1]);
+            if (coordinates[0] > 0 && coordinates[1] > 0)
+            {
+                highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1] - 1]);
+            }
+            if (coordinates[0] < pitchWidth - 1 && coordinates[1] > 0)
+            {
+                highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1] - 1]);
+            }
         }
         // so if tile is below top n bottom check
-        if (coordinates[1] < pitchLength)
+        if (pitch[coordinates[0]].Count() < pitchLength)
         {
-            highLightedTiles.Add(pitch[coordinates[0]][coordinates[1] + 1]);
+            if (coordinates[1] + 1 < pitch[coordinates[0]].Count())
+            {
+                highLightedTiles.Add(pitch[coordinates[0]][coordinates[1] + 1]);
+            }
+        }
+        else
+        {
+            if (coordinates[1] + 1 < pitch[coordinates[0]].Count())
+            {
+                highLightedTiles.Add(pitch[coordinates[0]][coordinates[1] + 1]);
+            }
         }
         if (coordinates[1] > 0)
         {
-            highLightedTiles.Add(pitch[coordinates[0]][coordinates[1] + 1]);
+            highLightedTiles.Add(pitch[coordinates[0]][coordinates[1] - 1]);
         }
 
         // then for every tile in highlighted tiles - highlight them

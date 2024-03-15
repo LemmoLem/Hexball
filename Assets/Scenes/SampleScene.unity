@@ -475,6 +475,14 @@ PrefabInstance:
       propertyPath: manager
       value: 
       objectReference: {fileID: 1967255402}
+    - target: {fileID: -7701228377421885059, guid: 6ba85bcf2c2e94a4fa2b3b02a209560d, type: 3}
+      propertyPath: baseColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7701228377421885059, guid: 6ba85bcf2c2e94a4fa2b3b02a209560d, type: 3}
+      propertyPath: highlightedColor.a
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5873186082175208656, guid: 6ba85bcf2c2e94a4fa2b3b02a209560d, type: 3}
       propertyPath: m_Name
       value: HexagonTile
