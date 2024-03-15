@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6528704780364061721
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1815517863475054804}
+  - component: {fileID: 8596561353942322186}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1815517863475054804
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6528704780364061721}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.6215637, y: 0.15159674, z: 0.0791014}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8596561353942322186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6528704780364061721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5d7567ee32e46f48a9c887c5ff790ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvas: {fileID: 2405331246817044302, guid: de15a917bf0fe894680482a61bcbb042, type: 3}
+  hexagon: {fileID: -7701228377421885059, guid: 6ba85bcf2c2e94a4fa2b3b02a209560d, type: 3}
+  pitchWidth: 15
+  pitchLength: 19
+  posOfPitch: 0
+  pitchLine: {fileID: 2111817906430120868, guid: fcdda59068f0a9b4ba20807b2c7bc844, type: 3}
+  circle: {fileID: 8160000292109635123, guid: 19411983a615caf4c86fd904fc501065, type: 3}
+  semiCircle: {fileID: 538156524232146231, guid: 9b6fdbca54add6d4f9f1658109d5c09e, type: 3}
+  goalLine: {fileID: 3533723936288739898, guid: dd15630b86efb26498d6e1ae4afd1551, type: 3}
+  camera: {fileID: 0}
+  player: {fileID: -1542835384082793177, guid: 974d4af16fbc83b4a8cefd696d2f371d, type: 3}
+  buttonToMove: {fileID: 0}
+  buttonToRotate: {fileID: 0}
+  slider: {fileID: 0}
+  football: {fileID: 0}
