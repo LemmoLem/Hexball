@@ -55,54 +55,82 @@ public class GameManager : MonoBehaviour
         // almost definetley a better way
 
         // so as layout alternates with one less or one more on outside this alternates, and the offset is - for when outside is less hexes
+        
+        // bit annoying but to avoid doing checks rows with extra hex also have extra null at the top of them
         for (int i = 0; i < pitchWidth; i++)
         {
             float yOffset = 0.5f * hexagonBounds.y;
             if (pitchWidth % 4 == 3)
             {
+                // so this one is for pitch where outside is shorter (raised) (so will be 1,3,5,7 for heights)
                 if (i % 2 == 0)
                 {
-                    pitch[i] = new HexTile[pitchLength - 1];
-                    for (int j = 0; j < pitchLength - 1; j++)
+                    pitch[i] = new HexTile[(pitchLength - 1)*2];
+                    for (int j = 0; j < pitch[i].Count(); j++)
                     {
+                        pitch[i][j] = null;
+                        j++;
                         HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                         hex.SetGameManager(this);
                         pitch[i][j] = hex;
                         hex.SetCoords(i, j);
                     }
                 }
+                // so this one is for pitch where outside is shorter (raised) (so will be 0,2,4,6,8 for heights)
                 else
                 {
-                    pitch[i] = new HexTile[pitchLength];
-                    for (int j = 0; j < pitchLength; j++)
+                    pitch[i] = new HexTile[(pitchLength*2)-1];
+
+                    // create first tile - as want to have last tile in this column to be a hexagon
+                    HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), -yOffset + hexagonBounds.y * 0, 0), Quaternion.identity, this.transform);
+                    hex.SetGameManager(this);
+                    pitch[i][0] = hex;
+                    hex.SetCoords(i, 0);
+
+                    for (int j = 1; j < pitch[i].Count(); j++)
                     {
-                        HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), -yOffset + hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
+                        pitch[i][j] = null; 
+                        j++;
+                        hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), -yOffset + hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                         hex.SetGameManager(this);
                         pitch[i][j] = hex;
                         hex.SetCoords(i, j);
+                        
+
                         //pitch[i][j] = (GameObject)Instantiate(hexagon.gameObject, new Vector3((float)(hexagonBounds.x * i * 0.75f), -yOffset + hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                     }
                 }
             }
             else
             {
+                // so this one is for pitch where outside is longere (so will be 0,2,4,6,8 for heights)
                 if (i % 2 == 0)
                 {
-                    pitch[i] = new HexTile[pitchLength];
-                    for (int j = 0; j < pitchLength; j++)
+                    pitch[i] = new HexTile[(pitchLength * 2) - 1];
+
+                    HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * 0, 0), Quaternion.identity, this.transform);
+                    hex.SetGameManager(this);
+                    pitch[i][0] = hex;
+                    hex.SetCoords(i, 0);
+                    for (int j = 1; j < pitch[i].Count(); j++)
                     {
-                        HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
+                        pitch[i][j] = null;
+                        j++;
+                        hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                         hex.SetGameManager(this);
                         pitch[i][j] = hex;
                         hex.SetCoords(i, j);
                         //pitch[i][j] = (GameObject)Instantiate(hexagon.gameObject, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                     }
                 }
+                // so this one is for pitch where outside is longer (so will be 1,3,5,7 for heights)
                 else
                 {
-                    pitch[i] = new HexTile[pitchLength - 1];
-                    for (int j = 0; j < pitchLength - 1; j++)
+                    pitch[i] = new HexTile[(pitchLength - 1) * 2];
+                    for (int j = 0; j < pitch[i].Count(); j++)
                     {
+                        pitch[i][j] = null;
+                        j++;
                         HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), yOffset + hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                         hex.SetGameManager(this);
                         pitch[i][j] = hex;
