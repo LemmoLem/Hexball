@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     public Canvas canvas;
     public HexTile hexagon;
     public int pitchWidth, pitchLength, posOfPitch;
-    public HexTile[][] pitch;
+    private Dictionary<(int x, int y), HexTile> pitch;
     public GameObject pitchLine, circle, semiCircle, goalLine;
     public Camera camera;
     public Player player;
@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
         CreatePlayers(5);
 
         // SPAWN BALL - MAKE IT A FUNCTION
-        GameObject centre = pitch[(pitchWidth + 1) / 2 - 1][(pitchLength + 1) / 2 - 1].gameObject;
+        GameObject centre = pitch[((pitchWidth + 1) / 2 - 1, pitchLength -1)].gameObject;
         football.gameObject.transform.parent = centre.transform;
         football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
         //football.gameObject.transform.localScale = new Vector3(0.82f, 0.82f, 0);
@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
     // NOTE TO SELF CAMERA AND OTHERR STUFF AND EDITED IN HERE, NEED TO TIDY UP SO THIS PROGRAM SEPERATES STUFF IN TO ACTUAL FUNCTIONS
     void CreatePitch()
     {
-        pitch = new HexTile[pitchWidth][];
+        pitch = new Dictionary<(int x, int y), HexTile>();
         Vector3 hexagonBounds = hexagon.GetComponent<SpriteRenderer>().bounds.size;
         hexagonBounds.y = 2 * Mathf.Sqrt(Mathf.Pow(hexagonBounds.x / 2, 2) - Mathf.Pow(hexagonBounds.x / 4, 2));
         // maths for finding height from width - basically cus getting height from looking at bounds which inst great 
@@ -65,36 +65,23 @@ public class GameManager : MonoBehaviour
                 // so this one is for pitch where outside is shorter (raised) (so will be 1,3,5,7 for heights)
                 if (i % 2 == 0)
                 {
-                    pitch[i] = new HexTile[(pitchLength - 1)*2];
-                    for (int j = 0; j < pitch[i].Count(); j++)
+                    for (int j = 0; j < pitchLength-1; j++)
                     {
-                        pitch[i][j] = null;
-                        j++;
                         HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                         hex.SetGameManager(this);
-                        pitch[i][j] = hex;
-                        hex.SetCoords(i, j);
+                        pitch[(i,j*2+1)] = hex;
+                        hex.SetCoords(i, j*2+1);
                     }
                 }
                 // so this one is for pitch where outside is shorter (raised) (so will be 0,2,4,6,8 for heights)
                 else
                 {
-                    pitch[i] = new HexTile[(pitchLength*2)-1];
-
-                    // create first tile - as want to have last tile in this column to be a hexagon
-                    HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), -yOffset + hexagonBounds.y * 0, 0), Quaternion.identity, this.transform);
-                    hex.SetGameManager(this);
-                    pitch[i][0] = hex;
-                    hex.SetCoords(i, 0);
-
-                    for (int j = 1; j < pitch[i].Count(); j++)
+                    for (int j = 1; j < pitchLength; j++)
                     {
-                        pitch[i][j] = null; 
-                        j++;
-                        hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), -yOffset + hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
+                        HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), -yOffset + hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                         hex.SetGameManager(this);
-                        pitch[i][j] = hex;
-                        hex.SetCoords(i, j);
+                        pitch[(i, j * 2)] = hex;
+                        hex.SetCoords(i, j * 2);
                         
 
                         //pitch[i][j] = (GameObject)Instantiate(hexagon.gameObject, new Vector3((float)(hexagonBounds.x * i * 0.75f), -yOffset + hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
@@ -106,35 +93,24 @@ public class GameManager : MonoBehaviour
                 // so this one is for pitch where outside is longere (so will be 0,2,4,6,8 for heights)
                 if (i % 2 == 0)
                 {
-                    pitch[i] = new HexTile[(pitchLength * 2) - 1];
-
-                    HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * 0, 0), Quaternion.identity, this.transform);
-                    hex.SetGameManager(this);
-                    pitch[i][0] = hex;
-                    hex.SetCoords(i, 0);
-                    for (int j = 1; j < pitch[i].Count(); j++)
+                    for (int j = 1; j < pitchLength; j++)
                     {
-                        pitch[i][j] = null;
-                        j++;
-                        hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
+                        HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                         hex.SetGameManager(this);
-                        pitch[i][j] = hex;
-                        hex.SetCoords(i, j);
+                        pitch[(i, j * 2)] = hex;
+                        hex.SetCoords(i, j * 2);
                         //pitch[i][j] = (GameObject)Instantiate(hexagon.gameObject, new Vector3((float)(hexagonBounds.x * i * 0.75f), hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                     }
                 }
                 // so this one is for pitch where outside is longer (so will be 1,3,5,7 for heights)
                 else
                 {
-                    pitch[i] = new HexTile[(pitchLength - 1) * 2];
-                    for (int j = 0; j < pitch[i].Count(); j++)
+                    for (int j = 0; j < pitchLength - 1; j++)
                     {
-                        pitch[i][j] = null;
-                        j++;
                         HexTile hex = Instantiate(hexagon, new Vector3((float)(hexagonBounds.x * i * 0.75f), yOffset + hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                         hex.SetGameManager(this);
-                        pitch[i][j] = hex;
-                        hex.SetCoords(i, j);
+                        pitch[(i, j * 2 + 1)] = hex;
+                        hex.SetCoords(i, j * 2 + 1);
                         //pitch[i][j] = (GameObject)Instantiate(hexagon.gameObject, new Vector3((float)(hexagonBounds.x * i * 0.75f), yOffset + hexagonBounds.y * j, 0), Quaternion.identity, this.transform);
                     }
                 }
@@ -157,7 +133,7 @@ public class GameManager : MonoBehaviour
         float yScale = 2 * Mathf.Sqrt(Mathf.Pow(hexagonBounds.x / 2, 2) - Mathf.Pow(hexagonBounds.x / 4, 2));
 
         // make halfway line
-        Vector3 centre = pitch[(pitchWidth + 1) / 2 - 1][(pitchLength + 1) / 2 - 1].transform.position;
+        Vector3 centre = pitch[((pitchWidth-1)/2,(pitchLength-1))].transform.position;
         centre.z = centre.z - 0.4f;
 
         camera.transform.position = centre;
@@ -169,21 +145,21 @@ public class GameManager : MonoBehaviour
         halfwayLine.transform.localScale = new Vector3((pitchWidth * 3 * 0.75f) + 0.25f, 0.5f, 1);
 
         // make sidelines and goallines
-        Vector3 topGoalPos = pitch[(pitchWidth + 1) / 2 - 1][pitchLength - 1].transform.position;
+        Vector3 topGoalPos = pitch[((pitchWidth + 1) / 2 - 1,(pitchLength - 1)*2)].transform.position;
         topGoalPos.z = topGoalPos.z - 0.4f;
         GameObject topGoalLine = Instantiate(halfwayLine, topGoalPos, Quaternion.identity, this.transform);
 
-        Vector3 bottomGoalPos = pitch[(pitchWidth + 1) / 2 - 1][0].transform.position;
+        Vector3 bottomGoalPos = pitch[((pitchWidth + 1) / 2 - 1, 0)].transform.position;
         bottomGoalPos.z = bottomGoalPos.z - 0.4f;
         GameObject bottomGoalLine = Instantiate(halfwayLine, bottomGoalPos, Quaternion.identity, this.transform);
 
-        Vector3 leftCentre = pitch[0][(pitchLength + 1) / 2 - 1].transform.position;
+        Vector3 leftCentre = pitch[(0, pitchLength + 1)].transform.position;
         leftCentre.y = centre.y;
         leftCentre.z = leftCentre.z - 0.4f;
         leftCentre.x = leftCentre.x - 1.0f;
         GameObject leftLine = Instantiate(pitchLine, leftCentre, Quaternion.identity, this.transform);
 
-        Vector3 rightCentre = pitch[pitchWidth - 1][(pitchLength + 1) / 2 - 1].transform.position;
+        Vector3 rightCentre = pitch[(pitchWidth - 1, pitchLength + 1)].transform.position;
         rightCentre.y = centre.y;
         rightCentre.z = rightCentre.z - 0.4f;
         rightCentre.x = rightCentre.x + 1.0f;
@@ -191,13 +167,15 @@ public class GameManager : MonoBehaviour
 
         if (pitchWidth % 4 == 3)
         {
-            leftLine.transform.localScale = new Vector3(0.5f, pitch[0].Length * yScale, 1);
-            rightLine.transform.localScale = new Vector3(0.5f, pitch[0].Length * yScale, 1);
+            Debug.Log("Need to make this code work");
+            //leftLine.transform.localScale = new Vector3(0.5f, pitch [0].Length * yScale, 1);
+            //rightLine.transform.localScale = new Vector3(0.5f, pitch[0].Length * yScale, 1);
         }
         else
         {
-            leftLine.transform.localScale = new Vector3(0.5f, (pitch[0].Length - 1) * yScale, 1);
-            rightLine.transform.localScale = new Vector3(0.5f, (pitch[0].Length - 1) * yScale, 1);
+            Debug.Log("Need to make this code work");
+            //leftLine.transform.localScale = new Vector3(0.5f, (pitch[0].Length - 1) * yScale, 1);
+            //rightLine.transform.localScale = new Vector3(0.5f, (pitch[0].Length - 1) * yScale, 1);
         }
 
         // create penatly box, centre circle etc, (leave corners to much later as no impact to gameplay)
@@ -232,7 +210,7 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < amountOfPlayers; i++)
         {
-            Player newPlayer = Instantiate(player, pitch[pitchWidth / 2][i].transform);
+            Player newPlayer = Instantiate(player, pitch[(pitchWidth / 2, i*2)].transform);
         }
     }
 
@@ -347,70 +325,7 @@ public class GameManager : MonoBehaviour
         // change code to not use pitch length and instead check coordinates[0] count !!!!
 
         // so if tile is away from edges and away from top add them
-        if (pitch[coordinates[0]].Count() < pitchLength)
-        {
-            if (coordinates[0] > 0 && coordinates[1] < pitch[coordinates[0] - 1].Count())
-            {
-                highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1] + 1]);
-            }
-            if (coordinates[0] < pitchWidth - 1 && coordinates[1] < pitch[coordinates[0] + 1].Count())
-            {
-                highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1] + 1]);
-            }
-        }
-        else
-        {
-            if (coordinates[0] > 0 && coordinates[1] < pitch[coordinates[0]-1].Count())
-            {
-                highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1]]);
-            }
-            if (coordinates[0] < pitchWidth - 1 && coordinates[1] < pitch[coordinates[0]+1].Count())
-            {
-                highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1]]);
-            }
-        }
-        // so if tile away from edges and the bottom add them
-        if (pitch[coordinates[0]].Count() < pitchLength)
-        {
-            if (coordinates[0] > 0 && coordinates[1] >= 0)
-            {
-                highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1]]);
-            }
-            if (coordinates[0] < pitchWidth - 1 && coordinates[1] >= 0)
-            {
-                highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1]]);
-            }
-        }
-        else
-        {
-            if (coordinates[0] > 0 && coordinates[1] > 0)
-            {
-                highLightedTiles.Add(pitch[coordinates[0] - 1][coordinates[1] - 1]);
-            }
-            if (coordinates[0] < pitchWidth - 1 && coordinates[1] > 0)
-            {
-                highLightedTiles.Add(pitch[coordinates[0] + 1][coordinates[1] - 1]);
-            }
-        }
-        // so if tile is below top n bottom check
-        if (pitch[coordinates[0]].Count() < pitchLength)
-        {
-            if (coordinates[1] + 1 < pitch[coordinates[0]].Count())
-            {
-                highLightedTiles.Add(pitch[coordinates[0]][coordinates[1] + 1]);
-            }
-        }
-        else
-        {
-            if (coordinates[1] + 1 < pitch[coordinates[0]].Count())
-            {
-                highLightedTiles.Add(pitch[coordinates[0]][coordinates[1] + 1]);
-            }
-        }
-        if (coordinates[1] > 0)
-        {
-            highLightedTiles.Add(pitch[coordinates[0]][coordinates[1] - 1]);
-        }
+       
 
         // then for every tile in highlighted tiles - highlight them
         for (int i = 0; i < highLightedTiles.Count; i++)
