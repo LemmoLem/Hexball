@@ -1154,6 +1154,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 467046715}
     - target: {fileID: 8596561353942322186, guid: c464a0a2d8b0c8c45abee1e7d81fc49a, type: 3}
+      propertyPath: pitchWidth
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8596561353942322186, guid: c464a0a2d8b0c8c45abee1e7d81fc49a, type: 3}
+      propertyPath: pitchLength
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 8596561353942322186, guid: c464a0a2d8b0c8c45abee1e7d81fc49a, type: 3}
       propertyPath: buttonToMove
       value: 
       objectReference: {fileID: 1324211468}
