@@ -178,15 +178,13 @@ public class GameManager : MonoBehaviour
 
         if (pitchWidth % 4 == 3)
         {
-            Debug.Log("Need to make this code work");
-            //leftLine.transform.localScale = new Vector3(0.5f, pitch [0].Length * yScale, 1);
-            //rightLine.transform.localScale = new Vector3(0.5f, pitch[0].Length * yScale, 1);
+            leftLine.transform.localScale = new Vector3(0.5f, (pitchLength - 1)* yScale, 1);
+            rightLine.transform.localScale = new Vector3(0.5f, (pitchLength -1) * yScale, 1);
         }
         else
         {
-            Debug.Log("Need to make this code work");
-            //leftLine.transform.localScale = new Vector3(0.5f, (pitch[0].Length - 1) * yScale, 1);
-            //rightLine.transform.localScale = new Vector3(0.5f, (pitch[0].Length - 1) * yScale, 1);
+            leftLine.transform.localScale = new Vector3(0.5f, (pitchLength - 1) * yScale, 1);
+            rightLine.transform.localScale = new Vector3(0.5f, (pitchLength - 1) * yScale, 1);
         }
 
         // create penatly box, centre circle etc, (leave corners to much later as no impact to gameplay)
@@ -338,12 +336,164 @@ public class GameManager : MonoBehaviour
         // tile +1x and +1 and -1 y
         // tile +0 and +2 and -2 y
 
-        AddToHighlightedTiles(coordinates[0], coordinates[1] + 2);
-        AddToHighlightedTiles(coordinates[0], coordinates[1] - 2);
-        AddToHighlightedTiles(coordinates[0] - 1, coordinates[1] + 1);
-        AddToHighlightedTiles(coordinates[0] + 1, coordinates[1] + 1);
-        AddToHighlightedTiles(coordinates[0] - 1, coordinates[1] - 1);
-        AddToHighlightedTiles(coordinates[0] + 1, coordinates[1] - 1);
+        // AddToHighlightedTiles(coordinates[0], coordinates[1] + 2);
+        //AddToHighlightedTiles(coordinates[0], coordinates[1] - 2);
+        //AddToHighlightedTiles(coordinates[0] - 1, coordinates[1] + 1);
+        //AddToHighlightedTiles(coordinates[0] + 1, coordinates[1] + 1);
+        //AddToHighlightedTiles(coordinates[0] - 1, coordinates[1] - 1);
+        //AddToHighlightedTiles(coordinates[0] + 1, coordinates[1] - 1);
+
+        // so apply certain move across until reach mid point 
+        // based on rotation the incrementation should be different
+        // and coordinate to start from should be different
+        // surely programatic way to do it !!!
+        int[] IncrementBasedOnRotation(bool firstHalf)
+        {
+            int[] increments = new int[] { 0, 0 };
+            if (firstHalf)
+            {
+                switch (playerRotation)
+                {
+                    // looking down
+                    case 0 or 6:
+                        increments[0] = -1;
+                        increments[1] = -1;
+                        break;
+                    // looking downright
+                    case 1:
+                        increments[0] = 0;
+                        increments[1] = -2;
+                        break;
+                    // looking up right
+                    case 2:
+                        increments[0] = 1;
+                        increments[1] = -1;
+                        break;
+                    // looking up
+                    case 3:
+                        increments[0] = 1;
+                        increments[1] = 1;
+                        break;
+                    // looking up left
+                    case 4:
+                        increments[0] = 0;
+                        increments[1] = 2;
+                        break;
+                    // looking down left
+                    case 5:
+                        increments[0] = -1;
+                        increments[1] = 1;
+                        break;
+                }
+            }
+            else
+            {
+                switch (playerRotation)
+                {
+                    // looking down
+                    case 0 or 6:
+                        increments[0] = -1;
+                        increments[1] = 1;
+                        break;
+                    // looking downright
+                    case 1:
+                        increments[0] = -1;
+                        increments[1] = -1;
+                        break;
+                    // looking up right
+                    case 2:
+                        increments[0] = 0;
+                        increments[1] = -2;
+                        break;
+                    // looking up
+                    case 3:
+                        increments[0] = 1;
+                        increments[1] = -1;
+                        break;
+                    // looking up left
+                    case 4:
+                        increments[0] = 1;
+                        increments[1] = 1;
+                        break;
+                    // looking down left
+                    case 5:
+                        increments[0] = 0;
+                        increments[1] = 2;
+                        break;
+                }
+            }
+            return increments;
+        }
+        
+        int[] GetStartingCoord(int x, int y, int offset)
+        {
+            int[] coord = new int[2];
+            switch (playerRotation)
+            {
+                // looking down
+                case 0 or 6:
+                    x += offset;
+                    y -= offset;
+                    break;
+                // looking downright
+                case 1:
+                    x += offset;
+                    y += offset;
+                    break;
+                // looking up right
+                case 2:
+                    x = x;
+                    y += 2 * offset;
+                    break;
+                // looking up
+                case 3:
+                    x -= offset;
+                    y += offset;
+                    break;
+                // looking up left
+                case 4:
+                    x -= offset;
+                    y -= offset;
+                    break;
+                // looking down left
+                case 5:
+                    x = x;
+                    y -= 2 * offset;
+                    break;
+            }
+            coord[0] = x;
+            coord[1] = y;
+            return coord;
+        }
+
+        int moveDistanceRange = 3;
+        // bad name for variable cant think of anything else tho lol
+        // have to now set starting tile
+        int[] increments = IncrementBasedOnRotation(true);
+        int[] decrements = IncrementBasedOnRotation(false);
+            
+
+        
+        for (int i = 1; i <= moveDistanceRange; i++)
+        {
+            int[] coord = GetStartingCoord(coordinates[0], coordinates[1], i);
+            for (int j = 0; j < i * 2 + 1; j++)
+            {
+                // if its in first half (and for middle) then apply certain transformation
+                if (j < i)
+                {
+                    AddToHighlightedTiles(coord[0], coord[1]);
+                    coord[0] += increments[0];
+                    coord[1] += increments[1];
+                }
+                else
+                {
+                    AddToHighlightedTiles(coord[0], coord[1]);
+                    coord[0] += decrements[0];
+                    coord[1] += decrements[1];
+                }
+            }
+        }
 
         // then for every tile in highlighted tiles - highlight them
         for (int i = 0; i < highLightedTiles.Count; i++)
@@ -411,7 +561,7 @@ public class GameManager : MonoBehaviour
     public void SetPlayerRotation(int rotation)
     {
         playerRotation = rotation;
-        Debug.Log("rotation nation");
+        Debug.Log(playerRotation);
         if (GetLastTileClicked() != null)
         {
             if (GetLastTileClicked().GetComponentInChildren<Player>() != null)
