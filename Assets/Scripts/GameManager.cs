@@ -284,11 +284,9 @@ public class GameManager : MonoBehaviour
 
     public void ResolveClick(HexTile hex)
     {
-        UnhighLightTiles();
-        HighLightTiles(hex);
         // check whether player pressed button to move a player
         // need to create a button only if there is a player on it
-        if(GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToMove == true)
+        if(GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToMove == true && highLightedTiles.Contains(hex))
         {
             Player child = GetLastTileClicked().GetComponentInChildren<Player>();
             child.gameObject.transform.parent = hex.transform;
@@ -303,7 +301,7 @@ public class GameManager : MonoBehaviour
                 football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
             }
         }
-        else if (GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToPass == true)
+        else if (GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToPass == true && highLightedTiles.Contains(hex))
         {
             football.gameObject.transform.parent = hex.transform;
             football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
@@ -316,10 +314,11 @@ public class GameManager : MonoBehaviour
         }
         playerWantsToRotate = false;
         slider.SetActive(false);
+        UnhighLightTiles();
     }
 
 
-    public void HighLightTiles(HexTile hex)
+    public void HighLightTiles(HexTile hex, int range)
     {
         // first gotta find where tile is in array
         // so this func should move from a specific tile (and direction)
@@ -466,7 +465,7 @@ public class GameManager : MonoBehaviour
             return coord;
         }
 
-        int moveDistanceRange = 3;
+        int moveDistanceRange = range;
         // bad name for variable cant think of anything else tho lol
         // have to now set starting tile
         int[] increments = IncrementBasedOnRotation(true);
@@ -539,6 +538,13 @@ public class GameManager : MonoBehaviour
     {
         playerWantsToMove = !playerWantsToMove;
         playerWantsToPass = false;
+        if (playerWantsToMove)
+        {
+            if (GetLastTileClicked() != null)
+            {
+                HighLightTiles(GetLastTileClicked(), 3);
+            }
+        }
     }
     public bool GetPlayerWantsToMove()
     {
@@ -576,7 +582,9 @@ public class GameManager : MonoBehaviour
                 // vector 3 is essentially new vector (0,0,1)
                 child.transform.rotation = Quaternion.Euler(Vector3.forward * 60 * playerRotation);
 
-                // idk how well this will work
+                UnhighLightTiles();
+                playerWantsToMove = false;
+                playerWantsToPass = false;
             }
         }
     }
@@ -600,6 +608,13 @@ public class GameManager : MonoBehaviour
         // dont allow player to have pass ball and wants to move at the same time !
         playerWantsToPass = !playerWantsToPass;
         playerWantsToMove = false;
+        if (playerWantsToPass)
+        {
+            if (GetLastTileClicked() != null)
+            {
+                HighLightTiles(GetLastTileClicked(), 6);
+            }
+        }
     }
 
     // aso when u press

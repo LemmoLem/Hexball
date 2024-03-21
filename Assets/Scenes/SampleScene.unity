@@ -1566,6 +1566,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Football
       objectReference: {fileID: 0}
+    - target: {fileID: 5441941489835585209, guid: cca5325a68ba1f74db78c1f475a77c56, type: 3}
+      propertyPath: m_Color.b
+      value: 0.9415095
+      objectReference: {fileID: 0}
+    - target: {fileID: 5441941489835585209, guid: cca5325a68ba1f74db78c1f475a77c56, type: 3}
+      propertyPath: m_Color.g
+      value: 0.97265685
+      objectReference: {fileID: 0}
+    - target: {fileID: 5441941489835585209, guid: cca5325a68ba1f74db78c1f475a77c56, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5446318858770166496, guid: cca5325a68ba1f74db78c1f475a77c56, type: 3}
       propertyPath: m_LocalPosition.x
       value: -54.05
