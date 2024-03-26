@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     //
     //
     // Start is called before the first frame update
+    private Team team;
     void Start()
     {
         
@@ -19,4 +20,13 @@ public class Player : MonoBehaviour
     {
         
     }
+    public void SetTeam(Team t)
+    {
+        team = t;
+    }
+    public Team GetTeam() 
+    { 
+        return team; 
+    }
+
 }

@@ -46,4 +46,9 @@ public class buttonUI : MonoBehaviour
         gameManager.SetPassBall();
 
     }
+
+    public void EndTurn()
+    {
+        gameManager.EndPlayersTurn();
+    }
 }

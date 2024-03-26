@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     private Dictionary<(int x, int y), HexTile> pitch;
     public GameObject pitchLine, circle, semiCircle, goalLine;
     public Camera camera;
-    public Player player;
+    public Player playerBlue, playerRed;
     private HexTile lastTileClicked;
     public GameObject buttonToMove, buttonToRotate, slider, buttonToControl, buttonToPass;
     private List<GameObject> currentButtons = new List<GameObject>();
@@ -25,13 +25,15 @@ public class GameManager : MonoBehaviour
     private int playerRotation = 0;
     public Football football;
     private List<HexTile> highLightedTiles = new List<HexTile>();
+    public Team player1, player2;
+    private Team currentPlayer;
 
     // Start is called before the first frame update
     void Start()
     {
         CreatePitch();
         CreatePlayers(5);
-
+        currentPlayer = player1;
         // SPAWN BALL - MAKE IT A FUNCTION
         GameObject centre = pitch[((pitchWidth + 1) / 2 - 1, pitchLength -1)].gameObject;
         football.gameObject.transform.parent = centre.transform;
@@ -219,7 +221,17 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < amountOfPlayers; i++)
         {
-            Player newPlayer = Instantiate(player, pitch[(pitchWidth / 2, i*2)].transform);
+            Player newPlayer = Instantiate(playerBlue, pitch[(pitchWidth / 2, i*2)].transform);
+            player1.AddToPlayers(newPlayer);
+            newPlayer.gameObject.SetActive(true);
+            newPlayer.SetTeam(player1);
+        }
+        for (int i = pitchLength-1; i > pitchLength - amountOfPlayers; i--)
+        {
+            Player newPlayer = Instantiate(playerRed, pitch[(pitchWidth / 2, i * 2)].transform);
+            player2.AddToPlayers(newPlayer);
+            newPlayer.gameObject.SetActive(true);
+            newPlayer.SetTeam(player2);
         }
     }
 
@@ -249,22 +261,25 @@ public class GameManager : MonoBehaviour
         //
         if (tileClicked.GetComponentInChildren<Player>() != null)
         {
-            // move and rotate will always be options
-            GameObject newButton = Instantiate(buttonToMove, canvas.transform);
-            currentButtons.Add(newButton);
-            newButton.SetActive(true);
-            newButton = Instantiate(buttonToRotate, canvas.transform);
-            currentButtons.Add(newButton);
-            newButton.SetActive(true);
-
-            if (tileClicked.GetComponentInChildren<Football>())
+            if (GetLastTileClicked().GetComponentInChildren<Player>().GetTeam() == currentPlayer)
             {
-                newButton = Instantiate(buttonToControl, canvas.transform);
+                // move and rotate will always be options
+                GameObject newButton = Instantiate(buttonToMove, canvas.transform);
                 currentButtons.Add(newButton);
                 newButton.SetActive(true);
-                newButton = Instantiate(buttonToPass, canvas.transform);
+                newButton = Instantiate(buttonToRotate, canvas.transform);
                 currentButtons.Add(newButton);
                 newButton.SetActive(true);
+
+                if (tileClicked.GetComponentInChildren<Football>())
+                {
+                    newButton = Instantiate(buttonToControl, canvas.transform);
+                    currentButtons.Add(newButton);
+                    newButton.SetActive(true);
+                    newButton = Instantiate(buttonToPass, canvas.transform);
+                    currentButtons.Add(newButton);
+                    newButton.SetActive(true);
+                }
             }
         }
     }
@@ -284,9 +299,8 @@ public class GameManager : MonoBehaviour
 
     public void ResolveClick(HexTile hex)
     {
-        // check whether player pressed button to move a player
-        // need to create a button only if there is a player on it
-        if(GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToMove == true && highLightedTiles.Contains(hex))
+        // if player in last tile clicked and player wants to move and move tile is in range 
+       if (GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToMove == true && highLightedTiles.Contains(hex))
         {
             Player child = GetLastTileClicked().GetComponentInChildren<Player>();
             child.gameObject.transform.parent = hex.transform;
@@ -301,12 +315,14 @@ public class GameManager : MonoBehaviour
                 football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
             }
         }
+       // if there was a player and wants to pass and pass is in range
         else if (GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToPass == true && highLightedTiles.Contains(hex))
         {
             football.gameObject.transform.parent = hex.transform;
             football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
             playerWantsToPass = false;
             SetLastTileClicked(null);
+            football.SetPlayer(null);
         }
         else
         {
@@ -320,6 +336,8 @@ public class GameManager : MonoBehaviour
 
     public void HighLightTiles(HexTile hex, int range)
     {
+
+        UnhighLightTiles();
         // first gotta find where tile is in array
         // so this func should move from a specific tile (and direction)
         // then change found tiles to be diff colour
@@ -617,5 +635,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // aso when u press
+    public void EndPlayersTurn()
+    {
+        Debug.Log("I HAVE JUST ENDED PLAYER " + currentPlayer + "'s turn");
+        if (currentPlayer == player1)
+        {
+            currentPlayer = player2;
+        }
+        else
+        {
+            currentPlayer = player1;
+        }
+    }
 }
