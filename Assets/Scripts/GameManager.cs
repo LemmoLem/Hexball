@@ -27,6 +27,10 @@ public class GameManager : MonoBehaviour
     private List<HexTile> highLightedTiles = new List<HexTile>();
     public Team player1, player2;
     private Team currentPlayer;
+    private bool player1First = true;
+    private List<ArrayList> player1Turn = new List<ArrayList>();
+    private List<ArrayList> player2Turn = new List<ArrayList>();
+
 
     // Start is called before the first frame update
     void Start()
@@ -219,19 +223,23 @@ public class GameManager : MonoBehaviour
 
     void CreatePlayers(int amountOfPlayers) 
     {
+        int rotation = 3;
         for (int i = 0; i < amountOfPlayers; i++)
         {
             Player newPlayer = Instantiate(playerBlue, pitch[(pitchWidth / 2, i*2)].transform);
             player1.AddToPlayers(newPlayer);
             newPlayer.gameObject.SetActive(true);
             newPlayer.SetTeam(player1);
+            newPlayer.SetRotation(rotation);
         }
+        rotation = 0;
         for (int i = pitchLength-1; i > pitchLength - amountOfPlayers; i--)
         {
             Player newPlayer = Instantiate(playerRed, pitch[(pitchWidth / 2, i * 2)].transform);
             player2.AddToPlayers(newPlayer);
             newPlayer.gameObject.SetActive(true);
             newPlayer.SetTeam(player2);
+            newPlayer.SetRotation(rotation);
         }
     }
 
@@ -580,6 +588,7 @@ public class GameManager : MonoBehaviour
             // this isnt a part to get hung upon rn
             //slider.GetComponent<Slider>().value = GetLastTileClicked().transform.GetChild(2).gameObject.transform.rotation.z / 60;
             slider.SetActive(playerWantsToRotate);
+            slider.GetComponent<Slider>().value = GetLastTileClicked().GetComponentInChildren<Player>().GetRotation();
         }
     }
     public void SetPlayerRotation(int rotation)
@@ -599,7 +608,7 @@ public class GameManager : MonoBehaviour
 
                 // vector 3 is essentially new vector (0,0,1)
                 child.transform.rotation = Quaternion.Euler(Vector3.forward * 60 * playerRotation);
-
+                child.SetRotation(rotation);
                 UnhighLightTiles();
                 playerWantsToMove = false;
                 playerWantsToPass = false;
@@ -638,6 +647,8 @@ public class GameManager : MonoBehaviour
     public void EndPlayersTurn()
     {
         Debug.Log("I HAVE JUST ENDED PLAYER " + currentPlayer + "'s turn");
+        DestroyButtons();
+        UnhighLightTiles();
         if (currentPlayer == player1)
         {
             currentPlayer = player2;
@@ -646,5 +657,31 @@ public class GameManager : MonoBehaviour
         {
             currentPlayer = player1;
         }
+    }
+
+    private void ResolveTurnActions()
+    {
+        List<List<ArrayList>> playerTurns = new List<List<ArrayList>> ();
+        if (player1First)
+        {
+            playerTurns.Append(player1Turn);
+            playerTurns.Append(player2Turn);
+        }
+        else
+        {
+            playerTurns.Append(player2Turn);
+            playerTurns.Append(player1Turn);
+        }
+        for (int i = 0; i < playerTurns.Count; i++)
+        {
+            for (int j = 0; j < playerTurns[i].Count; j++)
+            {
+                // for each action in here there will be a switch case or delegate type thing
+                Debug.Log("whey");
+            }
+        }
+        player1Turn.Clear();
+        player2Turn.Clear();
+        playerTurns.Clear();
     }
 }

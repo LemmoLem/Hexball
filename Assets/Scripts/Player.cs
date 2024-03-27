@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     //
     // Start is called before the first frame update
     private Team team;
+    private int rotation;
     void Start()
     {
         
@@ -28,5 +29,12 @@ public class Player : MonoBehaviour
     { 
         return team; 
     }
-
+    public int GetRotation()
+    {
+        return rotation;
+    }
+    public void SetRotation(int r)
+    {
+        rotation = r;
+    }
 }
