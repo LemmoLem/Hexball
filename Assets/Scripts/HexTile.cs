@@ -20,22 +20,7 @@ public class HexTile : MonoBehaviour
     }
     void OnMouseDown()
     {
-        // so now what i want a button to pop up if theres a player on the tile
-        // then if u click the button u can click another tile and it will move there
-        // (then adjust method to move only to tiles within a few distance) 
-        if (manager.GetLastTileClicked() == null)
-        {
-            manager.SetLastTileClicked(this);
-        }
-        else
-        {
-            // if theres a player child for last tile then move its position and set it to be child of this
-
-            // so check
-
-
-            manager.ResolveClick(this);
-        }
+       manager.ResolveClick(this);   
     }
     public void SetGameManager(GameManager manager)
     {

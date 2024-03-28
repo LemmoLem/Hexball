@@ -23,4 +23,8 @@ public class Team : MonoBehaviour
     {
         players.Add(player);
     }
+    public List<Player> GetPlayers()
+    {
+        return players;
+    }
 }

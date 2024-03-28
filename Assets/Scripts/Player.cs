@@ -11,6 +11,9 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     private Team team;
     private int rotation;
+    private ArrayList actions;
+    private List<Player> previousStates = new List<Player>();
+
     void Start()
     {
         
@@ -36,5 +39,17 @@ public class Player : MonoBehaviour
     public void SetRotation(int r)
     {
         rotation = r;
+    }
+
+    public Player PopLastState()
+    {
+        Player lastState = null;
+        lastState = previousStates[previousStates.Count - 1];
+        previousStates.Remove(lastState);
+        return lastState;
+    }
+    public void AddPreviousState(Player player)
+    {
+        previousStates.Add(player);
     }
 }

@@ -51,4 +51,9 @@ public class buttonUI : MonoBehaviour
     {
         gameManager.EndPlayersTurn();
     }
+
+    public void GoBackPhase()
+    {
+        gameManager.GoBackPhase();
+    }
 }

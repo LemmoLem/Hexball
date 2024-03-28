@@ -18,7 +18,6 @@ public class GameManager : MonoBehaviour
     public GameObject pitchLine, circle, semiCircle, goalLine;
     public Camera camera;
     public Player playerBlue, playerRed;
-    private HexTile lastTileClicked;
     public GameObject buttonToMove, buttonToRotate, slider, buttonToControl, buttonToPass;
     private List<GameObject> currentButtons = new List<GameObject>();
     private bool playerWantsToMove, playerWantsToRotate, playerWantsToPass = false;
@@ -28,8 +27,9 @@ public class GameManager : MonoBehaviour
     public Team player1, player2;
     private Team currentPlayer;
     private bool player1First = true;
-    private List<ArrayList> player1Turn = new List<ArrayList>();
-    private List<ArrayList> player2Turn = new List<ArrayList>();
+    private GhostMarker ghostMarker;
+    private Player selectedPlayer;
+    private HexTile currentTile;
 
 
     // Start is called before the first frame update
@@ -243,33 +243,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void MovePlayerToTile()
-    {
-
-    }
-
-    public HexTile GetLastTileClicked()
-    {
-        return lastTileClicked;
-    }
-
-    public void SetLastTileClicked(HexTile newTileClicked)
-    {
-        DestroyButtons();
-        lastTileClicked = newTileClicked;
-        if (newTileClicked != null)
-        {
-            DisplayTileOptions(newTileClicked);
-        }
-    }
-
     public void DisplayTileOptions(HexTile tileClicked)
     {
         // change this so checks whether there is a player on the tile and if there is then will create a button to move player
         //
         if (tileClicked.GetComponentInChildren<Player>() != null)
         {
-            if (GetLastTileClicked().GetComponentInChildren<Player>().GetTeam() == currentPlayer)
+            if (tileClicked.GetComponentInChildren<Player>().GetTeam() == currentPlayer)
             {
                 // move and rotate will always be options
                 GameObject newButton = Instantiate(buttonToMove, canvas.transform);
@@ -307,6 +287,22 @@ public class GameManager : MonoBehaviour
 
     public void ResolveClick(HexTile hex)
     {
+        // rewrite this function - new implementation will work on basis 
+        // if u click an action type then u will have to do it or back out of it
+        // so will only accept tiles in that range
+        // try for now turn of any type being an action.
+        // this will add copy to player
+        // and will allow undo button
+
+        // if player is on tile display options ( first remove other options)
+        DestroyButtons();
+        DisplayTileOptions(hex);
+        currentTile = hex;
+        // then when a button is pressed u should be locked into that choice
+        // or u unpress the button
+        // u can then click on other tiles
+        
+        /*
         // if player in last tile clicked and player wants to move and move tile is in range 
        if (GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToMove == true && highLightedTiles.Contains(hex))
         {
@@ -339,6 +335,7 @@ public class GameManager : MonoBehaviour
         playerWantsToRotate = false;
         slider.SetActive(false);
         UnhighLightTiles();
+        */
     }
 
 
@@ -566,10 +563,7 @@ public class GameManager : MonoBehaviour
         playerWantsToPass = false;
         if (playerWantsToMove)
         {
-            if (GetLastTileClicked() != null)
-            {
-                HighLightTiles(GetLastTileClicked(), 3);
-            }
+            HighLightTiles(currentTile, 3);
         }
     }
     public bool GetPlayerWantsToMove()
@@ -582,26 +576,26 @@ public class GameManager : MonoBehaviour
         playerWantsToRotate = !playerWantsToRotate;
         // so create subbuttons to rotate
         // for now just try to rotate
-        if (GetLastTileClicked().GetComponentInChildren<Player>() != null)
+        if (currentTile.GetComponentInChildren<Player>() != null)
         {
             // so set the slider active
             // this isnt a part to get hung upon rn
             //slider.GetComponent<Slider>().value = GetLastTileClicked().transform.GetChild(2).gameObject.transform.rotation.z / 60;
             slider.SetActive(playerWantsToRotate);
-            slider.GetComponent<Slider>().value = GetLastTileClicked().GetComponentInChildren<Player>().GetRotation();
+            slider.GetComponent<Slider>().value = currentTile.GetComponentInChildren<Player>().GetRotation();
         }
     }
     public void SetPlayerRotation(int rotation)
     {
         playerRotation = rotation;
         Debug.Log(playerRotation);
-        if (GetLastTileClicked() != null)
+        if (currentTile != null)
         {
-            if (GetLastTileClicked().GetComponentInChildren<Player>() != null)
+            if (currentTile.GetComponentInChildren<Player>() != null)
             {
                 Debug.Log("ROTATION");
                 // GameObject child = GetLastTileClicked().transform.GetChild(2).gameObject;
-                Player child = GetLastTileClicked().GetComponentInChildren<Player>();
+                Player child = currentTile.GetComponentInChildren<Player>();
                 // Assuming 'child' is your GameObject's Transform
                 // so should acc 
                 // child.transform.Rotate(0, 0, 60*playerRotation);
@@ -619,13 +613,13 @@ public class GameManager : MonoBehaviour
     public void SetPlayerControlBall()
     {
         // this check allows a player to uncontrol the ball
-        if (football.GetPlayer() == GetLastTileClicked().GetComponentInChildren<Player>())
+        if (football.GetPlayer() == currentTile.GetComponentInChildren<Player>())
         {
             football.SetPlayer(null);
         }
         else
         {
-            football.SetPlayer(GetLastTileClicked().GetComponentInChildren<Player>());
+            football.SetPlayer(currentTile.GetComponentInChildren<Player>());
         }
     }
 
@@ -637,9 +631,9 @@ public class GameManager : MonoBehaviour
         playerWantsToMove = false;
         if (playerWantsToPass)
         {
-            if (GetLastTileClicked() != null)
+            if (currentTile != null)
             {
-                HighLightTiles(GetLastTileClicked(), 6);
+                HighLightTiles(currentTile, 6);
             }
         }
     }
@@ -659,29 +653,46 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void PassBall()
+    {
+
+    }
+    private void MovePlayer()
+    {
+
+    }
+    private void RotatePlayer()
+    {
+
+    }
+
+    public void GoBackPhase()
+    {
+
+    }
+
     private void ResolveTurnActions()
     {
-        List<List<ArrayList>> playerTurns = new List<List<ArrayList>> ();
+        // will go thru priority players first
+        List<Team> playerTurns = new List<Team> ();
         if (player1First)
         {
-            playerTurns.Append(player1Turn);
-            playerTurns.Append(player2Turn);
+            playerTurns.Add(player1);
+            playerTurns.Add(player2);
         }
         else
         {
-            playerTurns.Append(player2Turn);
-            playerTurns.Append(player1Turn);
+            playerTurns.Add(player2);
+            playerTurns.Add(player1);
         }
-        for (int i = 0; i < playerTurns.Count; i++)
+        for (int i = 0; i < playerTurns[0].GetPlayers().Count; i++)
         {
-            for (int j = 0; j < playerTurns[i].Count; j++)
+            for (int j = 0; j < playerTurns[i].GetPlayers().Count; j++)
             {
                 // for each action in here there will be a switch case or delegate type thing
                 Debug.Log("whey");
             }
         }
-        player1Turn.Clear();
-        player2Turn.Clear();
-        playerTurns.Clear();
+
     }
 }
