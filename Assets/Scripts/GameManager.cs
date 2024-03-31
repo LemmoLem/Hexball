@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
     public GameObject pitchLine, circle, semiCircle, goalLine;
     public Camera camera;
     public Player playerBlue, playerRed;
-    public GameObject buttonToMove, buttonToRotate, slider, buttonToControl, buttonToPass;
+    public GameObject buttonToMove, buttonToRotate, slider, buttonToControl, buttonToPass, buttonToCancel, buttonUndo, buttonConfirm;
     private List<GameObject> currentButtons = new List<GameObject>();
     private bool playerWantsToMove, playerWantsToRotate, playerWantsToPass = false;
     private int playerRotation = 0;
@@ -278,7 +278,7 @@ public class GameManager : MonoBehaviour
             Destroy(currentButtons[i]);
         }
         currentButtons.Clear();
-
+        slider.SetActive(false);
     }
     public Canvas GetCanvas()
     {
@@ -294,50 +294,76 @@ public class GameManager : MonoBehaviour
         // this will add copy to player
         // and will allow undo button
 
-        // if player is on tile display options ( first remove other options)
-        DestroyButtons();
-        DisplayTileOptions(hex);
-        currentTile = hex;
-        // then when a button is pressed u should be locked into that choice
+
+        // if player wants to move - dont do anything to change unless clicks valid tile 
+        if (playerWantsToMove)
+        {
+            if (highLightedTiles.Contains(hex))
+            {
+                // now create a previous state 
+                selectedPlayer.AddPreviousState(selectedPlayer);
+
+                selectedPlayer.gameObject.transform.parent = hex.transform;
+                selectedPlayer.gameObject.transform.localPosition = new Vector3(0, 0, -1);
+                currentTile = null;
+                playerWantsToMove = false;
+                if (football.GetPlayer() == selectedPlayer)
+                {
+                    football.gameObject.transform.parent = hex.transform;
+                    football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
+                }
+                selectedPlayer = null;
+                UnhighLightTiles();
+                DestroyButtons();
+            }
+        }
+        else if (playerWantsToPass)
+        {
+            if (highLightedTiles.Contains(hex))
+            {
+                football.gameObject.transform.parent = hex.transform;
+                football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
+                playerWantsToPass = false;
+                currentTile = null;
+                football.SetPlayer(null);
+                selectedPlayer = null;
+                UnhighLightTiles();
+                DestroyButtons();
+            }
+        }
+
+
+        // so if not in a current player and no options are set and need resolving allow to change current tile and selected player
+        else
+        {
+            DestroyButtons();
+            DisplayTileOptions(hex);
+            UnhighLightTiles();
+            currentTile = hex;
+            selectedPlayer = hex.GetComponentInChildren<Player>();
+        }
+            // then when a button is pressed u should be locked into that choice
         // or u unpress the button
         // u can then click on other tiles
         
         /*
         // if player in last tile clicked and player wants to move and move tile is in range 
-       if (GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToMove == true && highLightedTiles.Contains(hex))
-        {
-            Player child = GetLastTileClicked().GetComponentInChildren<Player>();
-            child.gameObject.transform.parent = hex.transform;
-            child.gameObject.transform.localPosition = new Vector3(0, 0, -1);
-            SetLastTileClicked(null);
-            playerWantsToMove = false;
-
-            if (football.GetPlayer() == child)
-            {
-                // if player in control of ball is same as football then move it to tile with it
-                football.gameObject.transform.parent = hex.transform;
-                football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
-            }
-        }
+      
        // if there was a player and wants to pass and pass is in range
-        else if (GetLastTileClicked().GetComponentInChildren<Player>() != null && playerWantsToPass == true && highLightedTiles.Contains(hex))
-        {
-            football.gameObject.transform.parent = hex.transform;
-            football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
-            playerWantsToPass = false;
-            SetLastTileClicked(null);
-            football.SetPlayer(null);
-        }
-        else
-        {
-            SetLastTileClicked(hex);
-        }
         playerWantsToRotate = false;
         slider.SetActive(false);
         UnhighLightTiles();
         */
     }
 
+    public void LockInAction()
+    {
+        DestroyButtons();
+        buttonToCancel.SetActive(true);
+        GameObject newButton = Instantiate(buttonToCancel, canvas.transform);
+        currentButtons.Add(newButton);
+        newButton.SetActive(true);
+    }
 
     public void HighLightTiles(HexTile hex, int range)
     {
@@ -559,12 +585,12 @@ public class GameManager : MonoBehaviour
 
     public void SetPlayerWantsToMove()
     {
-        playerWantsToMove = !playerWantsToMove;
-        playerWantsToPass = false;
+        playerWantsToMove = true;
         if (playerWantsToMove)
         {
             HighLightTiles(currentTile, 3);
         }
+        LockInAction();
     }
     public bool GetPlayerWantsToMove()
     {
@@ -669,6 +695,20 @@ public class GameManager : MonoBehaviour
     public void GoBackPhase()
     {
 
+    }
+
+    public void ConfirmAction()
+    {
+
+    }
+    public void CancelAction()
+    {
+        playerWantsToMove = false;
+        playerWantsToPass = false;
+        playerWantsToRotate = false;
+        UnhighLightTiles();
+        DestroyButtons();
+        DisplayTileOptions(currentTile);
     }
 
     private void ResolveTurnActions()

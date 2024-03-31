@@ -56,4 +56,14 @@ public class buttonUI : MonoBehaviour
     {
         gameManager.GoBackPhase();
     }
+
+    public void CancelAction()
+    {
+        Debug.Log("am i here");
+        gameManager.CancelAction();
+    }
+    public void ConfirmAction()
+    {
+        gameManager.ConfirmAction();
+    }
 }

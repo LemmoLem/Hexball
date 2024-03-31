@@ -50,6 +50,7 @@ public class Player : MonoBehaviour
     }
     public void AddPreviousState(Player player)
     {
-        previousStates.Add(player);
+        Player playerClone = Instantiate(player);
+        previousStates.Add(playerClone);
     }
 }
