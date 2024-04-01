@@ -27,4 +27,8 @@ public class Team : MonoBehaviour
     {
         return players;
     }
+    public void RemovePlayer(Player player)
+    {
+        players.Remove(player);
+    }
 }

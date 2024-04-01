@@ -12,6 +12,7 @@ public class Football : MonoBehaviour
     private HexTile hextile;
     private Player player;
     public GameManager gameManager;
+    private List<Football> previousStates = new List<Football>();
 
     // Start is called before the first frame update
     void Start()
@@ -33,5 +34,18 @@ public class Football : MonoBehaviour
     public Player GetPlayer()
     {
         return this.player;
+    }
+
+    public Football PopLastState()
+    {
+        Football lastState = null;
+        lastState = previousStates[previousStates.Count - 1];
+        previousStates.Remove(lastState);
+        return lastState;
+    }
+    public void AddPreviousState(Football fball)
+    {
+        Football fballClone = Instantiate(fball);
+        previousStates.Add(fballClone   );
     }
 }

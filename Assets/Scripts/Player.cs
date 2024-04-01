@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.UI;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -13,6 +14,7 @@ public class Player : MonoBehaviour
     private int rotation;
     private ArrayList actions;
     private List<Player> previousStates = new List<Player>();
+    private int[] coordinates = new int[2];
 
     void Start()
     {
@@ -40,17 +42,41 @@ public class Player : MonoBehaviour
     {
         rotation = r;
     }
+    public int[] GetCoordinates()
+    {
+        Debug.Log(coordinates[0] + " " + coordinates[1]);
+        return coordinates;
+    }
+    public void SetCoordinates(int[] coords)
+    {
+        coordinates[0] = coords[0];
+        coordinates[1] = coords[1];
+        Debug.Log("inside player"+coordinates[0] + " " + coordinates[1]);
+
+    }
+
 
     public Player PopLastState()
     {
         Player lastState = null;
-        lastState = previousStates[previousStates.Count - 1];
-        previousStates.Remove(lastState);
+        if (previousStates.Count > 0)
+        {
+            lastState = previousStates[previousStates.Count - 1];
+            previousStates.Remove(lastState);
+        }
         return lastState;
     }
-    public void AddPreviousState(Player player)
+    public void AddPreviousState(Player player, HexTile hex)
     {
-        Player playerClone = Instantiate(player);
+        Player playerClone = Instantiate(player, hex.transform);
         previousStates.Add(playerClone);
+        playerClone.gameObject.SetActive(false);
+        Debug.Log(playerClone.GetCoordinates()[0]);
+        playerClone.SetCoordinates(coordinates);
+        playerClone.SetTeam(team);
+        playerClone.SetRotation(rotation);
+        // these ones probs need to be done with proper methods
+        playerClone.actions = actions;
+        playerClone.previousStates = previousStates;
     }
 }

@@ -231,6 +231,7 @@ public class GameManager : MonoBehaviour
             newPlayer.gameObject.SetActive(true);
             newPlayer.SetTeam(player1);
             newPlayer.SetRotation(rotation);
+            newPlayer.SetCoordinates(pitch[(pitchWidth / 2, i * 2)].GetCoord());
         }
         rotation = 0;
         for (int i = pitchLength-1; i > pitchLength - amountOfPlayers; i--)
@@ -240,6 +241,7 @@ public class GameManager : MonoBehaviour
             newPlayer.gameObject.SetActive(true);
             newPlayer.SetTeam(player2);
             newPlayer.SetRotation(rotation);
+            newPlayer.SetCoordinates(pitch[(pitchWidth / 2, i * 2)].GetCoord());
         }
     }
 
@@ -301,7 +303,7 @@ public class GameManager : MonoBehaviour
             if (highLightedTiles.Contains(hex))
             {
                 // now create a previous state 
-                selectedPlayer.AddPreviousState(selectedPlayer);
+                selectedPlayer.AddPreviousState(selectedPlayer, currentTile);
 
                 selectedPlayer.gameObject.transform.parent = hex.transform;
                 selectedPlayer.gameObject.transform.localPosition = new Vector3(0, 0, -1);
@@ -312,6 +314,7 @@ public class GameManager : MonoBehaviour
                     football.gameObject.transform.parent = hex.transform;
                     football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
                 }
+                selectedPlayer.SetCoordinates(hex.GetCoord());
                 selectedPlayer = null;
                 UnhighLightTiles();
                 DestroyButtons();
@@ -694,7 +697,26 @@ public class GameManager : MonoBehaviour
 
     public void GoBackPhase()
     {
+        // so if control of ball then should bring ball back and ball should go back to having player
+        // gotta adjust team for new player like
+        Player lastState = selectedPlayer.PopLastState();
+        Debug.Log(lastState.GetCoordinates()[0]);
+        if (lastState != null)
+        {
+            //remove player from team, destroy it
+            currentPlayer.RemovePlayer(selectedPlayer);
+            Destroy(selectedPlayer.gameObject);
+            //now player is last state, add it to team, set it active, place it correctly
+            selectedPlayer = lastState;
+            currentPlayer.AddToPlayers(selectedPlayer);
+            selectedPlayer.gameObject.SetActive(true);
+            int[] coords = new int[2];
+            coords = selectedPlayer.GetCoordinates();
+            Debug.Log(coords[0] +" "+ coords[1]);
+            selectedPlayer.gameObject.transform.parent = pitch[(coords[0], coords[1])].transform;
+            selectedPlayer.gameObject.transform.localPosition = new Vector3(0, 0, -1);
 
+        }
     }
 
     public void ConfirmAction()
