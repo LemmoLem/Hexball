@@ -12,7 +12,9 @@ public class Football : MonoBehaviour
     private HexTile hextile;
     private Player player;
     public GameManager gameManager;
-    private List<Football> previousStates = new List<Football>();
+    private List<int[]> previousStates = new List<int[]>();
+    private List<Player> previousPlayers = new List<Player>();
+    private int[] coordinates = new int[2];
 
     // Start is called before the first frame update
     void Start()
@@ -36,16 +38,40 @@ public class Football : MonoBehaviour
         return this.player;
     }
 
-    public Football PopLastState()
+    public int[] PopLastState()
     {
-        Football lastState = null;
-        lastState = previousStates[previousStates.Count - 1];
-        previousStates.Remove(lastState);
+        int[] lastState = null;
+        if (previousStates.Count > 0) { 
+            lastState = previousStates[previousStates.Count - 1];
+            previousStates.Remove(lastState);
+        }
         return lastState;
     }
-    public void AddPreviousState(Football fball)
+    public void AddPrevious(int[] coordinate, Player p)
     {
-        Football fballClone = Instantiate(fball);
-        previousStates.Add(fballClone   );
+        previousStates.Add(coordinate);
+        previousPlayers.Add(p);
+    }
+
+    public Player PopLastPlayer()
+    {
+        Player lastState = null;
+        if (previousStates.Count > 0)
+        {
+            lastState = previousPlayers[previousPlayers.Count - 1];
+            previousPlayers.Remove(lastState);
+        }
+        return lastState;
+    }
+
+    public int[] GetCoordinates()
+    {
+        Debug.Log(coordinates[0] + " " + coordinates[1]);
+        return coordinates;
+    }
+    public void SetCoordinates(int[] coords)
+    {
+        coordinates[0] = coords[0];
+        coordinates[1] = coords[1];
     }
 }

@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
         // SPAWN BALL - MAKE IT A FUNCTION
         GameObject centre = pitch[((pitchWidth + 1) / 2 - 1, pitchLength -1)].gameObject;
         football.gameObject.transform.parent = centre.transform;
+        football.SetCoordinates(pitch[((pitchWidth + 1) / 2 - 1, pitchLength - 1)].GetCoord());
         football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
         //football.gameObject.transform.localScale = new Vector3(0.82f, 0.82f, 0);
 
@@ -307,15 +308,19 @@ public class GameManager : MonoBehaviour
 
                 selectedPlayer.gameObject.transform.parent = hex.transform;
                 selectedPlayer.gameObject.transform.localPosition = new Vector3(0, 0, -1);
-                currentTile = null;
-                playerWantsToMove = false;
+                playerWantsToMove = false; 
+                selectedPlayer.SetLastActionUsedBall(false);
                 if (football.GetPlayer() == selectedPlayer)
                 {
+                    football.AddPrevious(currentTile.GetCoord(),selectedPlayer.GetLastPlayer());
+                    football.SetCoordinates(hex.GetCoord());
                     football.gameObject.transform.parent = hex.transform;
                     football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
+                    selectedPlayer.SetLastActionUsedBall(true);
                 }
                 selectedPlayer.SetCoordinates(hex.GetCoord());
                 selectedPlayer = null;
+                currentTile = null;
                 UnhighLightTiles();
                 DestroyButtons();
             }
@@ -327,9 +332,13 @@ public class GameManager : MonoBehaviour
                 football.gameObject.transform.parent = hex.transform;
                 football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
                 playerWantsToPass = false;
-                currentTile = null;
                 football.SetPlayer(null);
+                selectedPlayer.SetLastActionUsedBall(true);
+                selectedPlayer.AddPreviousState(selectedPlayer, currentTile);
+                football.AddPrevious(currentTile.GetCoord(), selectedPlayer.GetLastPlayer());
+                football.SetCoordinates(hex.GetCoord());
                 selectedPlayer = null;
+                currentTile = null;
                 UnhighLightTiles();
                 DestroyButtons();
             }
@@ -703,20 +712,47 @@ public class GameManager : MonoBehaviour
         Debug.Log(lastState.GetCoordinates()[0]);
         if (lastState != null)
         {
-            //remove player from team, destroy it
-            currentPlayer.RemovePlayer(selectedPlayer);
-            Destroy(selectedPlayer.gameObject);
-            //now player is last state, add it to team, set it active, place it correctly
-            selectedPlayer = lastState;
-            currentPlayer.AddToPlayers(selectedPlayer);
-            selectedPlayer.gameObject.SetActive(true);
-            int[] coords = new int[2];
-            coords = selectedPlayer.GetCoordinates();
-            Debug.Log(coords[0] +" "+ coords[1]);
-            selectedPlayer.gameObject.transform.parent = pitch[(coords[0], coords[1])].transform;
-            selectedPlayer.gameObject.transform.localPosition = new Vector3(0, 0, -1);
+            
 
+
+            // if it was a ball action then need special part
+            if (selectedPlayer.CheckLastActionWasBall())
+            {
+                // so find when action was and undo actions for previous players in correct order 
+                // kinda recursive - like keep calling until to undone all until this state
+
+                // need to move player back
+                // need to move ball back
+
+                //remove player from team, destroy it
+                currentPlayer.RemovePlayer(selectedPlayer);
+                Destroy(selectedPlayer.gameObject);
+                //now player is last state, add it to team, set it active, place it correctly
+                selectedPlayer = lastState;
+                currentPlayer.AddToPlayers(selectedPlayer);
+                selectedPlayer.gameObject.SetActive(true);
+                int[] lastFBState = football.PopLastState();
+                Player lastFBPlayer = football.PopLastPlayer();
+
+                football.gameObject.transform.parent = pitch[(lastFBState[0], lastFBState[1])].transform;
+                football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
+                football.SetPlayer(lastFBPlayer);
+                football.SetCoordinates(lastFBState);
+            }
+            else 
+            {
+                //remove player from team, destroy it
+                currentPlayer.RemovePlayer(selectedPlayer);
+                Destroy(selectedPlayer.gameObject);
+                //now player is last state, add it to team, set it active, place it correctly
+                selectedPlayer = lastState;
+                currentPlayer.AddToPlayers(selectedPlayer);
+                selectedPlayer.gameObject.SetActive(true);
+
+            }
         }
+        DestroyButtons();
+        UnhighLightTiles();
     }
 
     public void ConfirmAction()

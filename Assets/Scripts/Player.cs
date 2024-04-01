@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
     private ArrayList actions;
     private List<Player> previousStates = new List<Player>();
     private int[] coordinates = new int[2];
+    private bool lastActionUsedBall = false;
 
     void Start()
     {
@@ -71,6 +72,7 @@ public class Player : MonoBehaviour
         Player playerClone = Instantiate(player, hex.transform);
         previousStates.Add(playerClone);
         playerClone.gameObject.SetActive(false);
+        playerClone.gameObject.transform.localPosition = new Vector3(0, 0, -1);
         Debug.Log(playerClone.GetCoordinates()[0]);
         playerClone.SetCoordinates(coordinates);
         playerClone.SetTeam(team);
@@ -78,5 +80,21 @@ public class Player : MonoBehaviour
         // these ones probs need to be done with proper methods
         playerClone.actions = actions;
         playerClone.previousStates = previousStates;
+        playerClone.SetLastActionUsedBall(lastActionUsedBall);
+    }
+
+    // should be called after add previous state
+    public Player GetLastPlayer()
+    {
+        return previousStates[previousStates.Count - 1];
+    }
+
+    public bool CheckLastActionWasBall()
+    {
+        return lastActionUsedBall;
+    }
+    public void SetLastActionUsedBall(bool lastAction)
+    {
+        lastActionUsedBall = lastAction;
     }
 }
