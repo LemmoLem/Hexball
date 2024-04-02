@@ -16,6 +16,7 @@ public class Player : MonoBehaviour
     private List<Player> previousStates = new List<Player>();
     private int[] coordinates = new int[2];
     private bool lastActionUsedBall = false;
+    private int id;
 
     void Start()
     {
@@ -77,6 +78,7 @@ public class Player : MonoBehaviour
         playerClone.SetCoordinates(coordinates);
         playerClone.SetTeam(team);
         playerClone.SetRotation(rotation);
+        playerClone.SetId(id);
         // these ones probs need to be done with proper methods
         playerClone.actions = actions;
         playerClone.previousStates = previousStates;
@@ -96,5 +98,14 @@ public class Player : MonoBehaviour
     public void SetLastActionUsedBall(bool lastAction)
     {
         lastActionUsedBall = lastAction;
+    }
+
+    public void SetId(int num)
+    {
+        id = num;
+    }
+    public int GetId()
+    {
+        return id;
     }
 }

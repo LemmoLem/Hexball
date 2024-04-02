@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditorInternal.VersionControl.ListControl;
 using static UnityEngine.EventSystems.EventTrigger;
 
 public class GameManager : MonoBehaviour
@@ -233,6 +234,7 @@ public class GameManager : MonoBehaviour
             newPlayer.SetTeam(player1);
             newPlayer.SetRotation(rotation);
             newPlayer.SetCoordinates(pitch[(pitchWidth / 2, i * 2)].GetCoord());
+            newPlayer.SetId(i);
         }
         rotation = 0;
         for (int i = pitchLength-1; i > pitchLength - amountOfPlayers; i--)
@@ -243,6 +245,7 @@ public class GameManager : MonoBehaviour
             newPlayer.SetTeam(player2);
             newPlayer.SetRotation(rotation);
             newPlayer.SetCoordinates(pitch[(pitchWidth / 2, i * 2)].GetCoord());
+            newPlayer.SetId(i);
         }
     }
 
@@ -708,28 +711,25 @@ public class GameManager : MonoBehaviour
     {
         // so if control of ball then should bring ball back and ball should go back to having player
         // gotta adjust team for new player like
-        Player lastState = selectedPlayer.PopLastState();
-        Debug.Log(lastState.GetCoordinates()[0]);
-        if (lastState != null)
+       
+        if (selectedPlayer.GetLastPlayer() != null)
         {
-            
+
 
 
             // if it was a ball action then need special part
             if (selectedPlayer.CheckLastActionWasBall())
             {
-                // so find when action was and undo actions for previous players in correct order 
-                // kinda recursive - like keep calling until to undone all until this state
-
-                // need to move player back
-                // need to move ball back
-
-                //remove player from team, destroy it
-                currentPlayer.RemovePlayer(selectedPlayer);
+                if (selectedPlayer.GetLastPlayer() != football.GetLastPlayer())
+                {
+                    GoBackPass(selectedPlayer.GetLastPlayer());
+                }
+                Player lastState = selectedPlayer.PopLastState();
+                Debug.Log("GOING BACK AS FOOTBALL LAST PLAYER IS THIS PLAYERS LAST STATE");
+                currentPlayer.UpdatePlayer(selectedPlayer,lastState);
                 Destroy(selectedPlayer.gameObject);
                 //now player is last state, add it to team, set it active, place it correctly
                 selectedPlayer = lastState;
-                currentPlayer.AddToPlayers(selectedPlayer);
                 selectedPlayer.gameObject.SetActive(true);
                 int[] lastFBState = football.PopLastState();
                 Player lastFBPlayer = football.PopLastPlayer();
@@ -738,21 +738,73 @@ public class GameManager : MonoBehaviour
                 football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
                 football.SetPlayer(lastFBPlayer);
                 football.SetCoordinates(lastFBState);
+                
+               
             }
-            else 
+            else
             {
+                Player lastState = selectedPlayer.PopLastState();
+                Debug.Log(lastState.GetCoordinates()[0]);
                 //remove player from team, destroy it
-                currentPlayer.RemovePlayer(selectedPlayer);
+                currentPlayer.UpdatePlayer(selectedPlayer, lastState);
                 Destroy(selectedPlayer.gameObject);
                 //now player is last state, add it to team, set it active, place it correctly
                 selectedPlayer = lastState;
-                currentPlayer.AddToPlayers(selectedPlayer);
                 selectedPlayer.gameObject.SetActive(true);
 
             }
         }
         DestroyButtons();
         UnhighLightTiles();
+    }
+
+    private void GoBackPass(Player desiredGoBack)
+    {
+        // so for players in ball last state -> they need to go back to where they were before ballaction
+        // and ball needs to go back actions 
+        // these are done in order from most recent 
+
+        while (football.GetLastPlayer() != desiredGoBack)
+        {
+            // so uh oh. as players can move after pass, need way to get player n go back to them
+
+            // use id for player as index in currentplayer and then go back to last states
+            Player lastState = football.PopLastPlayer();
+            // so with this player state need to pop it from that player until get to it
+            Player playerOfNeededState = currentPlayer.GetPlayers()[lastState.GetId()];
+            Player playerOfNeededStateLastState = playerOfNeededState.PopLastState();
+            while (playerOfNeededStateLastState != lastState) 
+            {
+                // undo player actions, update team, destroy current player marker, set old one active
+                currentPlayer.UpdatePlayer(playerOfNeededState, playerOfNeededStateLastState);
+                Destroy(playerOfNeededState.gameObject);
+                playerOfNeededStateLastState.gameObject.SetActive(true);
+
+                // so this basically moves back one more last state 
+                playerOfNeededState = currentPlayer.GetPlayers()[lastState.GetId()];
+                playerOfNeededStateLastState = playerOfNeededState.PopLastState();
+
+            }
+
+            // now will be at go back phase for ball action so use   playerOfNeededStateLastState to do ball go back
+
+            currentPlayer.UpdatePlayer(playerOfNeededState, playerOfNeededStateLastState);
+            Destroy(playerOfNeededState.gameObject);
+            //now player is last state, add it to team, set it active, place it correctly
+            playerOfNeededStateLastState.gameObject.SetActive(true);
+
+
+            int[] lastFBState = football.PopLastState();
+
+            football.gameObject.transform.parent = pitch[(lastFBState[0], lastFBState[1])].transform;
+            football.gameObject.transform.localPosition = new Vector3(0, 0, -5);
+            football.SetPlayer(lastState);
+            football.SetCoordinates(lastFBState);
+        }
+
+        
+
+
     }
 
     public void ConfirmAction()

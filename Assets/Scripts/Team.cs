@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 public class Team : MonoBehaviour
@@ -30,5 +31,13 @@ public class Team : MonoBehaviour
     public void RemovePlayer(Player player)
     {
         players.Remove(player);
+    }
+    public void UpdatePlayer(Player playerToReplace, Player updatedPlayer)
+    {
+        int index = players.IndexOf(playerToReplace);
+        if (index != -1)
+        {
+            players[index] = updatedPlayer;
+        }
     }
 }

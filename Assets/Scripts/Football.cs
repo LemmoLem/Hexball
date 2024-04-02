@@ -56,12 +56,16 @@ public class Football : MonoBehaviour
     public Player PopLastPlayer()
     {
         Player lastState = null;
-        if (previousStates.Count > 0)
+        if (previousPlayers.Count > 0)
         {
             lastState = previousPlayers[previousPlayers.Count - 1];
             previousPlayers.Remove(lastState);
         }
         return lastState;
+    }
+    public Player GetLastPlayer()
+    {
+        return previousPlayers[previousPlayers.Count - 1];
     }
 
     public int[] GetCoordinates()
