@@ -59,11 +59,14 @@ public class buttonUI : MonoBehaviour
 
     public void CancelAction()
     {
-        Debug.Log("am i here");
         gameManager.CancelAction();
     }
     public void ConfirmRotateAction()
     {
         gameManager.ConfirmRotateAction();
+    }
+    public void WaitAPhase()
+    {
+        gameManager.WaitAPhase();
     }
 }

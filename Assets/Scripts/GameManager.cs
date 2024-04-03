@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     public GameObject pitchLine, circle, semiCircle, goalLine;
     public Camera camera;
     public Player playerBlue, playerRed;
-    public GameObject buttonToMove, buttonToRotate, slider, buttonToControl, buttonToPass, buttonToCancel, buttonUndo, buttonConfirm;
+    public GameObject buttonToMove, buttonToRotate, slider, buttonToControl, buttonToPass, buttonToCancel, buttonUndo, buttonConfirm, buttonWait;
     private List<GameObject> currentButtons = new List<GameObject>();
     private bool playerWantsToMove, playerWantsToRotate, playerWantsToPass = false;
     public Football football;
@@ -279,6 +279,9 @@ public class GameManager : MonoBehaviour
                     currentButtons.Add(newButton);
                     newButton.SetActive(true);
                 }
+                newButton = Instantiate(buttonWait, canvas.transform);
+                currentButtons.Add(newButton);
+                newButton.SetActive(true);
             }
         }
     }
@@ -706,17 +709,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void PassBall()
+    public void WaitAPhase()
     {
-
-    }
-    private void MovePlayer()
-    {
-
-    }
-    private void RotatePlayer()
-    {
-
+        // so for player add a previous state where its the same as this basically
+        selectedPlayer.AddPreviousState(selectedPlayer, currentTile);
+        DestroyButtons();
+        UnhighLightTiles();
+        selectedPlayer.SetLastActionUsedBall(false);
     }
 
     public void GoBackPhase()
@@ -823,7 +822,6 @@ public class GameManager : MonoBehaviour
     {
         // needs to change rotation and add as previous state + plus cancel for rotation needs to go back to what was
 
-        Player child = currentTile.GetComponentInChildren<Player>();
         // Assuming 'child' is your GameObject's Transform
         // so should acc 
         // child.transform.Rotate(0, 0, 60*playerRotation);
@@ -832,6 +830,15 @@ public class GameManager : MonoBehaviour
         UnhighLightTiles();
         DestroyButtons();
         playerWantsToRotate = false;
+
+        Player p = currentTile.GetComponentInChildren<Player>();
+        int rotation = p.GetRotation();
+        p.SetRotation(p.GetLastRotation());
+        currentTile.GetComponentInChildren<Player>().transform.rotation = Quaternion.Euler(Vector3.forward * 60 * p.GetLastRotation());
+        selectedPlayer.AddPreviousState(selectedPlayer, currentTile);
+        p.SetRotation(rotation);
+        currentTile.GetComponentInChildren<Player>().transform.rotation = Quaternion.Euler(Vector3.forward * 60 * rotation);
+        selectedPlayer.SetLastActionUsedBall(false);
 
     }
     public void CancelAction()
@@ -849,6 +856,12 @@ public class GameManager : MonoBehaviour
 
     private void ResolveTurnActions()
     {
+        // so after a player has made all their choices, undo all of them (go back to first states for all players in team
+        // , move ball back to where it was - this should be done fine by go back anyway)
+        // or dont undo everything just display the first and second players in players previous actions !!!
+        // then when both players done their turns go thru only seeing first in each prev state
+        // resolve any interactions/overlap yeye
+
         // will go thru priority players first
         List<Team> playerTurns = new List<Team> ();
         if (player1First)
