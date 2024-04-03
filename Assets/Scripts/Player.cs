@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     private int[] coordinates = new int[2];
     private bool lastActionUsedBall = false;
     private int id;
+    private int lastRotation;
 
     void Start()
     {
@@ -43,6 +44,15 @@ public class Player : MonoBehaviour
     public void SetRotation(int r)
     {
         rotation = r;
+    }
+    public void SetLastRotation(int r)
+    {
+        lastRotation = r;
+    }
+
+    public int GetLastRotation()
+    {
+        return lastRotation;
     }
     public int[] GetCoordinates()
     {
@@ -107,5 +117,10 @@ public class Player : MonoBehaviour
     public int GetId()
     {
         return id;
+    }
+
+    public bool CheckIfHasPreviousStates()
+    {
+        return previousStates.Count > 0;
     }
 }

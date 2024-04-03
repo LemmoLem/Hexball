@@ -542,9 +542,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2537475775817924423, guid: cc09781fb4dc29a488f60881e02fac35, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 586312603}
+    - target: {fileID: 2537475775817924423, guid: cc09781fb4dc29a488f60881e02fac35, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ConfirmRotateAction
+      objectReference: {fileID: 0}
     - target: {fileID: 7667692006484390384, guid: cc09781fb4dc29a488f60881e02fac35, type: 3}
       propertyPath: m_Name
       value: ButtonToConfirm
+      objectReference: {fileID: 0}
+    - target: {fileID: 7667692006484390384, guid: cc09781fb4dc29a488f60881e02fac35, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1157,6 +1169,10 @@ PrefabInstance:
     - target: {fileID: 7667692006484390384, guid: cc09781fb4dc29a488f60881e02fac35, type: 3}
       propertyPath: m_Name
       value: ButtonUndo
+      objectReference: {fileID: 0}
+    - target: {fileID: 7667692006484390384, guid: cc09781fb4dc29a488f60881e02fac35, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

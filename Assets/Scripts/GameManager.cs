@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
     public GameObject buttonToMove, buttonToRotate, slider, buttonToControl, buttonToPass, buttonToCancel, buttonUndo, buttonConfirm;
     private List<GameObject> currentButtons = new List<GameObject>();
     private bool playerWantsToMove, playerWantsToRotate, playerWantsToPass = false;
-    private int playerRotation = 0;
     public Football football;
     private List<HexTile> highLightedTiles = new List<HexTile>();
     public Team player1, player2;
@@ -274,6 +273,12 @@ public class GameManager : MonoBehaviour
                     currentButtons.Add(newButton);
                     newButton.SetActive(true);
                 }
+                if (tileClicked.GetComponentInChildren<Player>().CheckIfHasPreviousStates())
+                {
+                    newButton = Instantiate(buttonUndo, canvas.transform);
+                    currentButtons.Add(newButton);
+                    newButton.SetActive(true);
+                }
             }
         }
     }
@@ -347,7 +352,10 @@ public class GameManager : MonoBehaviour
             }
         }
 
-
+        else if (playerWantsToRotate)
+        {
+            Debug.Log("must rotate");
+        }
         // so if not in a current player and no options are set and need resolving allow to change current tile and selected player
         else
         {
@@ -374,13 +382,12 @@ public class GameManager : MonoBehaviour
     public void LockInAction()
     {
         DestroyButtons();
-        buttonToCancel.SetActive(true);
         GameObject newButton = Instantiate(buttonToCancel, canvas.transform);
         currentButtons.Add(newButton);
         newButton.SetActive(true);
     }
 
-    public void HighLightTiles(HexTile hex, int range)
+    public void HighLightTiles(HexTile hex, int range, Player player)
     {
 
         UnhighLightTiles();
@@ -415,7 +422,7 @@ public class GameManager : MonoBehaviour
             int[] increments = new int[] { 0, 0 };
             if (firstHalf)
             {
-                switch (playerRotation)
+                switch (player.GetRotation())
                 {
                     // looking down
                     case 0 or 6:
@@ -451,7 +458,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                switch (playerRotation)
+                switch (player.GetRotation())
                 {
                     // looking down
                     case 0 or 6:
@@ -491,7 +498,7 @@ public class GameManager : MonoBehaviour
         int[] GetStartingCoord(int x, int y, int offset)
         {
             int[] coord = new int[2];
-            switch (playerRotation)
+            switch (player.GetRotation())
             {
                 // looking down
                 case 0 or 6:
@@ -603,7 +610,7 @@ public class GameManager : MonoBehaviour
         playerWantsToMove = true;
         if (playerWantsToMove)
         {
-            HighLightTiles(currentTile, 3);
+            HighLightTiles(currentTile, 3, selectedPlayer);
         }
         LockInAction();
     }
@@ -614,7 +621,7 @@ public class GameManager : MonoBehaviour
 
     public void SetPlayerWantsToRotate()
     {
-        playerWantsToRotate = !playerWantsToRotate;
+        playerWantsToRotate = true;
         // so create subbuttons to rotate
         // for now just try to rotate
         if (currentTile.GetComponentInChildren<Player>() != null)
@@ -622,13 +629,18 @@ public class GameManager : MonoBehaviour
             // so set the slider active
             // this isnt a part to get hung upon rn
             //slider.GetComponent<Slider>().value = GetLastTileClicked().transform.GetChild(2).gameObject.transform.rotation.z / 60;
+            LockInAction();
             slider.SetActive(playerWantsToRotate);
             slider.GetComponent<Slider>().value = currentTile.GetComponentInChildren<Player>().GetRotation();
+            currentTile.GetComponentInChildren<Player>().SetLastRotation(currentTile.GetComponentInChildren<Player>().GetRotation());
+            GameObject newButton = Instantiate(buttonConfirm, canvas.transform);
+            currentButtons.Add(newButton);
+            newButton.SetActive(true);
         }
     }
     public void SetPlayerRotation(int rotation)
     {
-        playerRotation = rotation;
+        int playerRotation = rotation;
         Debug.Log(playerRotation);
         if (currentTile != null)
         {
@@ -674,7 +686,7 @@ public class GameManager : MonoBehaviour
         {
             if (currentTile != null)
             {
-                HighLightTiles(currentTile, 6);
+                HighLightTiles(currentTile, 6, selectedPlayer);
             }
         }
     }
@@ -807,8 +819,19 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void ConfirmAction()
+    public void ConfirmRotateAction()
     {
+        // needs to change rotation and add as previous state + plus cancel for rotation needs to go back to what was
+
+        Player child = currentTile.GetComponentInChildren<Player>();
+        // Assuming 'child' is your GameObject's Transform
+        // so should acc 
+        // child.transform.Rotate(0, 0, 60*playerRotation);
+
+        // vector 3 is essentially new vector (0,0,1)
+        UnhighLightTiles();
+        DestroyButtons();
+        playerWantsToRotate = false;
 
     }
     public void CancelAction()
@@ -819,6 +842,9 @@ public class GameManager : MonoBehaviour
         UnhighLightTiles();
         DestroyButtons();
         DisplayTileOptions(currentTile);
+        Player p = currentTile.GetComponentInChildren<Player>();
+        p.SetRotation(p.GetLastRotation());
+        currentTile.GetComponentInChildren<Player>().transform.rotation = Quaternion.Euler(Vector3.forward * 60 * p.GetLastRotation());
     }
 
     private void ResolveTurnActions()
