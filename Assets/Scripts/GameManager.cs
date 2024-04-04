@@ -27,9 +27,12 @@ public class GameManager : MonoBehaviour
     public Team player1, player2;
     private Team currentPlayer;
     private bool player1First = true;
-    private GhostMarker ghostMarker;
+    private List<GhostMarker> ghostMarkers = new List<GhostMarker>();
+    public GhostMarker ghostMarker;
     private Player selectedPlayer;
     private HexTile currentTile;
+    private int turnCount = 0;
+    public int actionsPerTurn;
 
 
     // Start is called before the first frame update
@@ -699,6 +702,19 @@ public class GameManager : MonoBehaviour
         Debug.Log("I HAVE JUST ENDED PLAYER " + currentPlayer + "'s turn");
         DestroyButtons();
         UnhighLightTiles();
+        turnCount++;
+        ClearIntentions();
+        // so if its 2 then that means both players have made choices
+        if (turnCount % 2 == 2)
+        {
+            ResolveTurnActions();
+            ClearGhostMarkers();
+        }
+        // 
+        else
+        {
+            StoreAndGoBackActions(currentPlayer);
+        }
         if (currentPlayer == player1)
         {
             currentPlayer = player2;
@@ -707,6 +723,7 @@ public class GameManager : MonoBehaviour
         {
             currentPlayer = player1;
         }
+        
     }
 
     public void WaitAPhase()
@@ -716,6 +733,45 @@ public class GameManager : MonoBehaviour
         DestroyButtons();
         UnhighLightTiles();
         selectedPlayer.SetLastActionUsedBall(false);
+    }
+
+    public void ClearIntentions()
+    {
+        playerWantsToMove = false;
+        playerWantsToRotate = false;
+        playerWantsToPass = false;
+    }
+
+    private void StoreAndGoBackActions(Team t)
+    {
+        // so for every player set active false for the last state in them
+        // and then set true the first state in all of them
+        // and then make ghost marker in where second state is - ghost marker will have more info later
+        List<Player> playersList = t.GetPlayers();
+        for (int i = 0; i < playersList.Count; i++)
+        {
+            playersList[i].gameObject.SetActive(false);
+            playersList[i].GetFirstPlayer().gameObject.SetActive(true);
+            int[] ghostMarkerCoord = playersList[i].GetSecondPlayer().GetCoordinates();
+
+            // now create GhostMarkers for where the second state of player is
+            GhostMarker gM = Instantiate(ghostMarker, pitch[(ghostMarkerCoord[0], ghostMarkerCoord[1])].transform);
+            gM.gameObject.SetActive(true);
+            ghostMarkers.Append(gM);
+        }
+        // move football back to state
+        // ALERT THIS IS PROBS A BAD WAY TO DO IT
+        football.AddPrevious(football.GetCoordinates(), null);
+        football.SetCoordinates(football.GetFirstFootballPos());
+    }
+
+    private void ClearGhostMarkers()
+    {
+        for (int i = 0; i < ghostMarkers.Count; i++)
+        {
+            Destroy(ghostMarkers[i].gameObject);
+        }
+        ghostMarkers.Clear();
     }
 
     public void GoBackPhase()
@@ -863,25 +919,44 @@ public class GameManager : MonoBehaviour
         // resolve any interactions/overlap yeye
 
         // will go thru priority players first
-        List<Team> playerTurns = new List<Team> ();
-        if (player1First)
+
+        // go thru 
+
+        // for player in whoever moves first go one by one doing previous state at a time
+        // move ball forward state as well
+        // then have to loop thru teams as thats were current state is
+        Team[] teamList = new Team[2];
+        if (currentPlayer == player2)
         {
-            playerTurns.Add(player1);
-            playerTurns.Add(player2);
+            teamList[0] = (player1);
+            teamList[1] = (player2);
         }
         else
         {
-            playerTurns.Add(player2);
-            playerTurns.Add(player1);
+            teamList[0] = (player2);
+            teamList[1] = (player1);
         }
-        for (int i = 0; i < playerTurns[0].GetPlayers().Count; i++)
+        for (int i = 0; i < actionsPerTurn; i++)
         {
-            for (int j = 0; j < playerTurns[i].GetPlayers().Count; j++)
+            for (int j = 0; j < teamList.Length; j++)
             {
-                // for each action in here there will be a switch case or delegate type thing
-                Debug.Log("whey");
+                // now go thru players n show stuff happening
+                StartCoroutine(WaitCoroutine());
+                
             }
+            // do ball phases too
         }
+        // then do current phase (all players in both teams yknow)
+    }
+    IEnumerator WaitCoroutine()
+    {
+        //Print the time of when the function is first called.
+        Debug.Log("Started Coroutine at timestamp : " + Time.time);
 
+        //yield on a new YieldInstruction that waits for 5 seconds.
+        yield return new WaitForSeconds(1);
+
+        //After we have waited 5 seconds print the time again.
+        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
 }

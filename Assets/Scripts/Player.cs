@@ -100,7 +100,14 @@ public class Player : MonoBehaviour
     {
         return previousStates[previousStates.Count - 1];
     }
-
+    public Player GetFirstPlayer()
+    {
+        return previousStates[0];
+    }
+    public Player GetSecondPlayer()
+    {
+        return previousStates[1];
+    }
     public bool CheckLastActionWasBall()
     {
         return lastActionUsedBall;

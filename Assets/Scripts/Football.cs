@@ -68,6 +68,10 @@ public class Football : MonoBehaviour
         return previousPlayers[previousPlayers.Count - 1];
     }
 
+    public int[] GetFirstFootballPos()
+    {
+        return previousStates[0];
+    }
     public int[] GetCoordinates()
     {
         Debug.Log(coordinates[0] + " " + coordinates[1]);
